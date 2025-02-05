@@ -13,6 +13,7 @@ This repository contains the official implementation of the paper ["**Interpreta
 ## Table of Contents
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
+- [Docker Support](#docker-support)
 - [Installation](#installation)
 - [Dataset Preparation](#dataset-preparation)
 - [Training](#training)
@@ -43,6 +44,28 @@ Recommended GPU configurations:
 - 1× NVIDIA GeForce RTX 4090 (24GB) or
 - 1× NVIDIA RTX A6000 (48GB)
 
+## Docker Support
+
+We provide Docker support for easy deployment and reproducibility. The Dockerfile includes all necessary dependencies and CUDA support.
+
+### Option 1: Pull from Docker Hub (Recommended)
+```bash
+# Pull the pre-built image
+docker pull ayushnangia16/protovit:v1
+
+# Run the container
+docker run --gpus all -it --rm -v /path/to/your/data:/app/datasets ayushnangia16/protovit:v1
+```
+
+### Option 2: Build Locally
+```bash
+# Build the Docker image
+docker build -t protovit .
+
+# Run the container
+docker run --gpus all -it --rm -v /path/to/your/data:/app/datasets protovit
+```
+
 ## Installation
 
 ```bash
@@ -61,33 +84,34 @@ pip install -r requirements.txt
    #Download the dataset CUB_200_2011.tgz from http://www.vision.caltech.edu/visipedia/CUB-200-2011.html
    tar -xzf CUB_200_2011.tgz
    ```
-3. Process the dataset:
-   
-   For cropping data and training_test split, please carefully follow the instructions from the dataset.
-   Sample code can be found in preprocess sample code that can crop and split data with Jupyter Notebook.
-      
+3. Process the dataset using our preprocessing tools:
    ```bash
-   # Create directory structure
-   mkdir -p ./datasets/cub200_cropped/{train_cropped,test_cropped}
+   # Preprocess CUB dataset (crops and splits data)
+   python preprocess_cub.py
    
-   # Crop and split images using provided scripts
-   python your_own_scripts/crop_images.py  # Uses bounding_boxes.txt
-   python your_own_scripts/split_dataset.py  # Uses train_test_split.txt
-   #Put the cropped training images in the directory "./datasets/cub200_cropped/train_cropped/"
-   #Put the cropped test images in the directory "./datasets/cub200_cropped/test_cropped/"
-   
-   # Augment training data 
-   python img_aug.py
-   #this will create an augmented training set in the following directory:
-   #"./datasets/cub200_cropped/train_cropped_augmented/"
+   # Augment training data
+   python augment_data.py
    ```
 
-### Stanford Cars Dataset
-The official website for the dataset is: 
-- [Official Stanford Cars Dataset](https://ai.stanford.edu/~jkrause/cars/car_dataset.html)
+### Pinterest Dataset Support
+We also provide support for the Pinterest dataset:
 
-Alternative dataset option available from:
-- [Kaggle Mirror](https://www.kaggle.com/datasets/jessicali9530/stanford-cars-dataset/data)
+1. Prepare your Pinterest dataset in the following structure:
+   ```
+   105_classes_pins_dataset/
+   ├── class1/
+   ├── class2/
+   └── ...
+   ```
+
+2. Process the dataset:
+   ```bash
+   # Preprocess Pinterest dataset
+   python preprocess_pins.py
+   
+   # Augment training data
+   python augment_pins.py
+   ```
 
 ## Training
 
@@ -128,11 +152,10 @@ To produce the reasoning plots:
 <img src="assets/reasoning.jpg" width="600px">
 </div>
 
-We analyze nearest prototypes for specific test images and retrieve model reasoning process for predictions:
+We analyze nearest prototypes for specific test images and retrieve model reasoning process for predictions. The visualization tools in `prototype_visualization.py` help create detailed visual explanations of the model's decision-making process.
 
 ```bash
 # this function provdes results for model's reasoning and local analysis
-
 python local_analysis.py -gpuid 0
 ```
 
